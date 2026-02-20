@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Thai Morse Pro (Full Version - Fixed)</title>
+    <meta name="theme-color" content="#0f172a">
+    <title>Thai Morse Pro (Stable Version)</title>
+    
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Thai%20Morse%20Pro%22,%22short_name%22:%22MorsePro%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#0f172a%22,%22theme_color%22:%22#0f172a%22,%22icons%22:[{%22src%22:%22https://cdn-icons-png.flaticon.com/512/3256/3256082.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
+
     <style>
         :root {
             --bg-color: #0f172a;
@@ -26,131 +30,70 @@
             overflow: hidden;
         }
 
-        .tabs {
-            display: flex;
-            background-color: var(--card-bg);
-            padding: 0.5rem;
-            gap: 0.5rem;
-        }
-        .tab-btn {
-            flex: 1;
-            padding: 0.75rem;
-            background: none;
-            border: none;
-            color: #64748b;
-            font-weight: bold;
-            border-bottom: 2px solid transparent;
-            cursor: pointer;
-        }
-        .tab-btn.active {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-        }
-
-        main {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-        }
-        .view-section {
-            position: absolute;
+        /* Splash Screen */
+        #splash-screen {
+            position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            padding: 1rem;
-            overflow-y: auto;
-            display: none;
+            background-color: var(--bg-color);
+            display: flex;
             flex-direction: column;
-            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
         }
+        .loader-icon { font-size: 3rem; color: var(--accent); margin-bottom: 20px; animation: pulse 1s infinite alternate; }
+
+        /* UI Elements */
+        .tabs { display: flex; background-color: var(--card-bg); padding: 0.5rem; gap: 0.5rem; }
+        .tab-btn { flex: 1; padding: 0.75rem; background: none; border: none; color: #64748b; font-weight: bold; border-bottom: 2px solid transparent; cursor: pointer; }
+        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        main { flex: 1; position: relative; overflow: hidden; }
+        .view-section { position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 1rem; overflow-y: auto; display: none; flex-direction: column; gap: 1rem; }
         .view-section.active { display: flex; }
 
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 1rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
+        .card { background-color: var(--card-bg); border-radius: 12px; padding: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
         label { display: block; color: #94a3b8; font-size: 0.8rem; margin-bottom: 0.5rem; }
         
-        textarea {
-            width: 100%;
-            background-color: #0f172a;
-            border: 1px solid #334155;
-            color: white;
-            padding: 0.75rem;
-            border-radius: 8px;
-            font-size: 1rem;
-            resize: none;
-            outline: none;
-        }
+        textarea { width: 100%; background-color: #0f172a; border: 1px solid #334155; color: white; padding: 0.75rem; border-radius: 8px; font-size: 1rem; resize: none; outline: none; }
 
-        .morse-display {
-            font-family: monospace;
-            font-size: 1.25rem;
-            letter-spacing: 2px;
-            color: var(--accent);
-            min-height: 2rem;
-            word-wrap: break-word;
-        }
+        .morse-display { font-family: monospace; font-size: 1.25rem; letter-spacing: 2px; color: var(--accent); min-height: 2rem; word-wrap: break-word; }
 
-        canvas {
-            width: 100%;
-            height: 80px;
-            background-color: #000;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
+        canvas { width: 100%; height: 80px; background-color: #000; border-radius: 8px; margin-bottom: 10px; }
 
-        .btn-action {
-            width: 100%;
-            padding: 1rem;
-            border-radius: 8px;
-            border: none;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-        }
+        .btn-action { width: 100%; padding: 1rem; border-radius: 8px; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; }
         .btn-primary { background-color: var(--accent); color: #000; }
         .btn-record { background-color: var(--accent-red); color: white; }
         .btn-record.recording { animation: pulse 1.5s infinite; background-color: #b91c1c; }
 
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
-        #decodedText {
-            font-size: 1.2rem;
-            min-height: 3rem;
-            max-height: 150px;
-            overflow-y: auto;
-            background: #0f172a;
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid #334155;
-            white-space: pre-wrap;
-        }
+        #decodedText { font-size: 1.4rem; min-height: 4rem; max-height: 150px; overflow-y: auto; background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #334155; color: white; }
     </style>
 </head>
 <body>
 
+    <div id="splash-screen">
+        <div class="loader-icon">● --- ●</div>
+        <div style="font-weight: bold; letter-spacing: 2px;">THAI MORSE PRO</div>
+    </div>
+
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('sender', event)">เครื่องส่ง (พิมพ์)</button>
-        <button class="tab-btn" onclick="switchTab('receiver', event)">เครื่องรับ (ฟัง)</button>
+        <button class="tab-btn active" onclick="switchTab('sender', event)">เครื่องส่ง</button>
+        <button class="tab-btn" onclick="switchTab('receiver', event)">เครื่องรับ</button>
     </div>
 
     <main>
         <div id="sender" class="view-section active">
             <div class="card">
-                <label>ข้อความภาษาไทย / อังกฤษ</label>
-                <textarea id="inputBox" rows="3" placeholder="พิมพ์ข้อความที่นี่..."></textarea>
+                <label>ข้อความภาษาไทย/อังกฤษ</label>
+                <textarea id="inputBox" rows="3" placeholder="พิมพ์ที่นี่..."></textarea>
             </div>
-            
             <div class="card">
-                <label>รหัสมอสที่ได้</label>
+                <label>รหัสมอส</label>
                 <div id="outputBox" class="morse-display"></div>
             </div>
-
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <button class="btn-action btn-primary" onclick="playMorse()">เล่นเสียง</button>
                 <button class="btn-action" style="background:#334155; color:white;" onclick="stopMorse()">หยุด</button>
@@ -162,16 +105,13 @@
                 <label>กราฟเสียง (Visualizer)</label>
                 <canvas id="audioCanvas"></canvas>
                 <div style="margin-top: 10px;">
-                    <label>ความไวไมค์ (Threshold): <span id="threshVal">30</span></label>
-                    <input type="range" id="thresholdSlider" min="5" max="100" value="30" style="width:100%;">
+                    <label>ความไว (Threshold): <span id="threshVal">30</span></label>
+                    <input type="range" id="thresholdSlider" min="5" max="150" value="30" style="width:100%;">
                 </div>
             </div>
-
             <div class="card">
-                <label>กำลังรับรหัส...</label>
-                <div id="decodedMorse" class="morse-display" style="color: var(--accent-green);">รอรับรหัส...</div>
+                <label>รหัสที่กำลังรับ: <span id="decodedMorse" style="color: var(--accent-green);">...</span></label>
             </div>
-
             <div class="card">
                 <label>ข้อความที่แปลได้</label>
                 <div id="decodedText"></div>
@@ -180,126 +120,78 @@
                     <button class="btn-action" style="background:#0284c7; color:white; padding: 0.5rem;" onclick="copyReceiverText()">คัดลอก</button>
                 </div>
             </div>
-
             <button id="btnListen" class="btn-action btn-record" onclick="toggleListening()">เริ่มฟังเสียง</button>
         </div>
     </main>
 
     <script>
-        // --- DATA ---
-        const THAI_MORSE = {
-            'ก': '--.', 'ข': '-.--.', 'ฃ': '-.--.', 'ค': '-.-.', 'ฅ': '-.-.', 'ฆ': '-.-.',
-            'ง': '...-.', 'จ': '.--.-', 'ฉ': '----', 'ช': '-.--', 'ซ': '--..', 'ฌ': '-.--',
-            'ญ': '.---', 'ฎ': '-..', 'ฏ': '-..', 'ฐ': '-...-', 'ฑ': '-..-', 'ฒ': '-..-',
-            'ณ': '-.', 'ด': '-..', 'ต': '-', 'ถ': '-...-', 'ท': '-..-', 'ธ': '-..-',
-            'น': '-.', 'บ': '-...', 'ป': '.--.', 'ผ': '--.-', 'ฝ': '--.-', 'พ': '.--',
-            'ฟ': '..-.', 'ภ': '.--', 'ม': '--', 'ย': '-.--', 'ร': '.-.', 'ล': '.-..',
-            'ว': '.--', 'ศ': '...', 'ษ': '...', 'ส': '...', 'ห': '....', 'ฬ': '.-..',
-            'อ': '-...-.-', 'ฮ': '--.--',
-            'ะ': '.-...', 'ั': '.--..', 'า': '.-', 'ำ': '...-.-', 'ิ': '..-..', 
-            'ี': '..-.', 'ึ': '...--', 'ื': '..--', 'ุ': '...-', 'ู': '...-..', 
-            'เ': '.-..-', 'แ': '.-.-', 'โ': '---', 'ใ': '.-.--', 'ไ': '.-.--',
-            '็': '...-.-', '์': '-.--.-', 'ๆ': '..--.-', 'ฯ': '.-.-.-',
-            '่': '.-.', '้': '...-', '๊': '--.', '๋': '.....',
-            '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....',
-            '6': '-....', '7': '--...', '8': '---..', '9': '----.', '0': '-----',
-            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
-            'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
-            'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
-            'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
-            'Y': '-.--', 'Z': '--..', ' ': '/'
-        };
-
+        // --- DATA & CONFIG ---
+        const THAI_MORSE = { 'ก': '--.', 'ข': '-.--.', 'ค': '-.-.', 'ง': '...-.', 'จ': '.--.-', 'ฉ': '----', 'ช': '-.--', 'ซ': '--..', 'ญ': '.---', 'ด': '-..', 'ต': '-', 'ถ': '-...-', 'ท': '-..-', 'ธ': '-..-', 'น': '-.', 'บ': '-...', 'ป': '.--.', 'ผ': '--.-', 'ฝ': '--.-', 'พ': '.--', 'ฟ': '..-.', 'ภ': '.--', 'ม': '--', 'ย': '-.--', 'ร': '.-.', 'ล': '.-..', 'ว': '.--', 'ศ': '...', 'ห': '....', 'ะ': '.-...', 'ั': '.--..', 'า': '.-', 'ำ': '...-.-', 'ิ': '..-..', 'ี': '..-.', 'ึ': '...--', 'ื': '..--', 'ุ': '...-', 'ู': '...-..', 'เ': '.-..-', 'แ': '.-.-', 'โ': '---', 'ใ': '.-.--', 'ไ': '.-.--', '็': '...-.-', '์': '-.--.-', 'ๆ': '..--.-', '่': '.-.', '้': '...-', '๊': '--.', '๋': '.....', '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.', '0': '-----', 'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..', ' ': '/' };
         const MORSE_TO_THAI = {};
         for (let key in THAI_MORSE) { MORSE_TO_THAI[THAI_MORSE[key]] = key; }
 
-        // --- SENDER ---
-        const inputBox = document.getElementById('inputBox');
-        const outputBox = document.getElementById('outputBox');
-        let audioCtxSender;
+        let audioCtxSender, audioCtxRec, analyser, microphone, isListening = false, animationId;
+        let lastState = false, lastTime = performance.now(), morseBuffer = "";
+        const UNIT_MS = 120; // ค่ามาตรฐานสำหรับลำโพงมือถือ
 
-        inputBox.addEventListener('input', (e) => {
-            let txt = e.target.value;
-            let morse = "";
-            for (let char of txt) {
-                if(THAI_MORSE[char]) morse += THAI_MORSE[char] + " ";
-                else if(THAI_MORSE[char.toUpperCase()]) morse += THAI_MORSE[char.toUpperCase()] + " ";
-                else if(char === " ") morse += "/ ";
+        window.addEventListener('load', () => setTimeout(() => { document.getElementById('splash-screen').style.opacity = '0'; setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 500); }, 1500));
+
+        // --- SENDER ---
+        document.getElementById('inputBox').addEventListener('input', (e) => {
+            let m = "";
+            for (let c of e.target.value) {
+                let char = c.toUpperCase();
+                m += (THAI_MORSE[char] || (c === " " ? "/" : "")) + " ";
             }
-            outputBox.innerText = morse;
+            document.getElementById('outputBox').innerText = m.trim();
         });
 
         function playMorse() {
             stopMorse();
-            const morse = outputBox.innerText;
-            if(!morse) return;
+            const m = document.getElementById('outputBox').innerText;
+            if(!m) return;
             audioCtxSender = new (window.AudioContext || window.webkitAudioContext)();
             let time = audioCtxSender.currentTime + 0.1;
-            const unit = 0.1;
-
-            morse.split('').forEach(s => {
-                if(s === '.') { beep(time, unit); time += unit * 2; }
-                else if(s === '-') { beep(time, unit * 3); time += unit * 4; }
-                else if(s === ' ') { time += unit * 2; }
-                else if(s === '/') { time += unit * 6; }
+            m.split('').forEach(s => {
+                if(s === '.') { beep(time, 0.1); time += 0.22; }
+                else if(s === '-') { beep(time, 0.3); time += 0.42; }
+                else if(s === ' ') { time += 0.22; }
+                else if(s === '/') { time += 0.62; }
             });
         }
-
-        function beep(start, duration) {
-            const osc = audioCtxSender.createOscillator();
-            const gain = audioCtxSender.createGain();
-            osc.frequency.value = 700;
-            gain.gain.setValueAtTime(0, start);
-            gain.gain.linearRampToValueAtTime(0.5, start + 0.01);
-            gain.gain.linearRampToValueAtTime(0.5, start + duration - 0.01);
-            gain.gain.linearRampToValueAtTime(0, start + duration);
-            osc.connect(gain);
-            gain.connect(audioCtxSender.destination);
-            osc.start(start);
-            osc.stop(start + duration);
+        function beep(s, d) {
+            const o = audioCtxSender.createOscillator(), g = audioCtxSender.createGain();
+            o.frequency.value = 900; // ปรับให้แหลมขึ้นเพื่อให้ไมค์จับง่ายขึ้น
+            g.gain.setValueAtTime(0, s);
+            g.gain.linearRampToValueAtTime(0.5, s + 0.01);
+            g.gain.linearRampToValueAtTime(0.5, s + d - 0.01);
+            g.gain.linearRampToValueAtTime(0, s + d);
+            o.connect(g); g.connect(audioCtxSender.destination);
+            o.start(s); o.stop(s + d);
         }
+        function stopMorse() { if(audioCtxSender) audioCtxSender.close(); }
 
-        function stopMorse() {
-            if(audioCtxSender) audioCtxSender.close();
-        }
-
-        // --- RECEIVER (Updated with Permission Fix) ---
-        let audioCtxRec, analyser, microphone, isListening = false, animationId;
-        let lastState = false, lastTime = performance.now(), morseBuffer = "";
-        const UNIT_MS = 100;
-
+        // --- RECEIVER (Stable Audio Engine) ---
         async function toggleListening() {
             const btn = document.getElementById('btnListen');
-            
-            // ตรวจสอบความพร้อมของเบราว์เซอร์
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert("เบราว์เซอร์ของคุณไม่รองรับการเข้าถึงไมโครโฟน หรือคุณกำลังเปิดไฟล์ผ่าน file:// (กรุณาใช้ HTTPS หรือรันผ่าน Local Server)");
-                return;
-            }
-
             if (!isListening) {
                 try {
-                    // ขอสิทธิ์เข้าถึงไมค์
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    
-                    audioCtxRec = new (window.AudioContext || window.webkitAudioContext)();
-                    microphone = audioCtxRec.createMediaStreamSource(stream);
+                    const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    if (!audioCtxRec || audioCtxRec.state === 'closed') {
+                        audioCtxRec = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+                    if (audioCtxRec.state === 'suspended') await audioCtxRec.resume();
+
+                    microphone = audioCtxRec.createMediaStreamSource(s);
                     analyser = audioCtxRec.createAnalyser();
-                    analyser.fftSize = 256;
+                    analyser.fftSize = 512; // เพิ่มความละเอียด
                     microphone.connect(analyser);
                     
                     isListening = true;
                     btn.innerText = "หยุดฟังเสียง";
                     btn.classList.add('recording');
                     processAudio();
-                } catch (err) { 
-                    // แจ้งเตือนข้อผิดพลาดตามกรณี
-                    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                        alert("ไมโครโฟนถูกบล็อก: กรุณาอนุญาตการเข้าถึงไมค์ในการตั้งค่าเบราว์เซอร์");
-                    } else {
-                        alert("Microphone Error: " + err.message); 
-                    }
-                }
+                } catch (err) { alert("ไมค์ขัดข้อง: กรุณาใช้ HTTPS และอนุญาตสิทธิ์ไมค์"); }
             } else { stopListening(); }
         }
 
@@ -308,86 +200,72 @@
             document.getElementById('btnListen').innerText = "เริ่มฟังเสียง";
             document.getElementById('btnListen').classList.remove('recording');
             cancelAnimationFrame(animationId);
-            if (audioCtxRec) audioCtxRec.close();
+            if(audioCtxRec) audioCtxRec.close();
         }
 
         function processAudio() {
             if (!isListening) return;
-            const dataArray = new Uint8Array(analyser.frequencyBinCount);
-            analyser.getByteFrequencyData(dataArray);
+            const data = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(data);
             
-            let sum = 0;
-            for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
-            const average = sum / dataArray.length;
+            // หาค่าสูงสุด (Peak Detection)
+            let peak = 0;
+            for(let v of data) if(v > peak) peak = v;
+            drawVisualizer(data);
 
-            drawVisualizer(dataArray);
+            const thresh = parseInt(document.getElementById('thresholdSlider').value);
+            const cur = peak > thresh;
+            const now = performance.now();
+            const dur = now - lastTime;
 
-            const threshold = document.getElementById('thresholdSlider').value;
-            const currentState = average > threshold;
-            const currentTime = performance.now();
-            const duration = currentTime - lastTime;
-
-            if (currentState !== lastState) {
-                if (lastState === true) { // สิ้นสุดเสียง (End of sound)
-                    if (duration < UNIT_MS * 2.5) morseBuffer += ".";
-                    else morseBuffer += "-";
-                    document.getElementById('decodedMorse').innerText = morseBuffer;
-                } else { // สิ้นสุดความเงียบ (End of silence)
-                    if (duration > UNIT_MS * 3) decodeCurrentBuffer();
-                    if (duration > UNIT_MS * 7) document.getElementById('decodedText').innerText += " ";
+            if (cur !== lastState) {
+                if (lastState) { // จบเสียง (เสียง -> เงียบ)
+                    if (dur > 25) { // กันสัญญาณรบกวนสั้นๆ
+                        morseBuffer += (dur < UNIT_MS * 2.2) ? "." : "-";
+                        document.getElementById('decodedMorse').innerText = morseBuffer;
+                    }
+                } else { // จบเงียบ (เงียบ -> เสียง)
+                    if (dur > UNIT_MS * 2.5) decode();
+                    if (dur > UNIT_MS * 6) document.getElementById('decodedText').innerText += " ";
                 }
-                lastState = currentState;
-                lastTime = currentTime;
+                lastState = cur; lastTime = now;
             }
-
-            if (!currentState && duration > UNIT_MS * 5 && morseBuffer !== "") decodeCurrentBuffer();
+            // แปลผลอัตโนมัติถ้าเงียบนาน
+            if (!cur && dur > 1000 && morseBuffer) decode();
             animationId = requestAnimationFrame(processAudio);
         }
 
-        function decodeCurrentBuffer() {
-            if (morseBuffer === "") return;
-            const char = MORSE_TO_THAI[morseBuffer.trim()] || "?";
-            const area = document.getElementById('decodedText');
-            area.innerText += char;
-            area.scrollTop = area.scrollHeight;
+        function decode() {
+            if (!morseBuffer) return;
+            const res = MORSE_TO_THAI[morseBuffer] || "";
+            document.getElementById('decodedText').innerText += res;
             morseBuffer = "";
             document.getElementById('decodedMorse').innerText = "...";
+            const area = document.getElementById('decodedText');
+            area.scrollTop = area.scrollHeight;
         }
 
         function drawVisualizer(data) {
-            const canvas = document.getElementById('audioCanvas');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const c = document.getElementById('audioCanvas'), ctx = c.getContext('2d');
+            ctx.clearRect(0,0,c.width,c.height);
             ctx.fillStyle = '#38bdf8';
-            const barWidth = canvas.width / data.length;
-            for (let i = 0; i < data.length; i++) {
-                const h = data[i] / 2;
-                ctx.fillRect(i * barWidth, canvas.height - h, barWidth - 1, h);
-            }
+            let bw = c.width/data.length;
+            for(let i=0; i<data.length; i++) ctx.fillRect(i*bw, c.height-(data[i]/2.5), bw-1, data[i]/2.5);
+            // วาดเส้น Threshold ให้เห็น
+            const thresh = parseInt(document.getElementById('thresholdSlider').value);
+            ctx.strokeStyle = 'red'; ctx.beginPath();
+            ctx.moveTo(0, c.height - thresh/2.5); ctx.lineTo(c.width, c.height - thresh/2.5); ctx.stroke();
         }
 
-        function clearReceiver() {
-            document.getElementById('decodedText').innerText = "";
-            document.getElementById('decodedMorse').innerText = "...";
-            morseBuffer = "";
+        function clearReceiver() { document.getElementById('decodedText').innerText = ""; morseBuffer = ""; }
+        function copyReceiverText() { navigator.clipboard.writeText(document.getElementById('decodedText').innerText); alert("คัดลอกแล้ว!"); }
+        function switchTab(t, e) {
+            document.querySelectorAll('.view-section, .tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(t).classList.add('active');
+            e.currentTarget.classList.add('active');
+            if(t !== 'receiver') stopListening();
         }
-
-        function copyReceiverText() {
-            const txt = document.getElementById('decodedText').innerText;
-            if(txt) { navigator.clipboard.writeText(txt); alert("คัดลอกแล้ว!"); }
-        }
-
-        document.getElementById('thresholdSlider').oninput = function() {
-            document.getElementById('threshVal').innerText = this.value;
-        };
-
-        function switchTab(tab, event) {
-            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tab).classList.add('active');
-            event.currentTarget.classList.add('active');
-            if (tab !== 'receiver') stopListening();
-        }
+        document.getElementById('thresholdSlider').oninput = function() { document.getElementById('threshVal').innerText = this.value; };
     </script>
 </body>
 </html>
